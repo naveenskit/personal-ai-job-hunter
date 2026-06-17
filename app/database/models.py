@@ -11,6 +11,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from typing import List, Optional
 
 from app.core.types import ApplicationStatus, utc_now_iso
 
@@ -37,15 +38,15 @@ class Resume(Base, TimestampMixin):
     file_path: Mapped[str] = mapped_column(Text, nullable=False)
     file_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     role_tags: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
-    raw_text: Mapped[str | None] = mapped_column(Text)
+    raw_text: Mapped[Optional[str]] = mapped_column(Text)
     parsed_data: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
-    embedding: Mapped[bytes | None] = mapped_column(LargeBinary)
+    embedding: Mapped[Optional[bytes]] = mapped_column(LargeBinary)
     is_active: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 
-    scores: Mapped[list[OpportunityScore]] = relationship(back_populates="resume")
-    applications: Mapped[list[Application]] = relationship(back_populates="resume")
-    skill_gaps: Mapped[list[SkillGap]] = relationship(back_populates="resume")
-    learning_plans: Mapped[list[LearningPlan]] = relationship(back_populates="resume")
+    scores: Mapped[List["OpportunityScore"]] = relationship(back_populates="resume")
+    applications: Mapped[List["Application"]] = relationship(back_populates="resume")
+    skill_gaps: Mapped[List["SkillGap"]] = relationship(back_populates="resume")
+    learning_plans: Mapped[List["LearningPlan"]] = relationship(back_populates="resume")
 
 
 class Company(Base, TimestampMixin):
@@ -53,10 +54,10 @@ class Company(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    domain: Mapped[str | None] = mapped_column(String(255))
-    website: Mapped[str | None] = mapped_column(Text)
-    linkedin_url: Mapped[str | None] = mapped_column(Text)
-    hq_location: Mapped[str | None] = mapped_column(String(255))
+    domain: Mapped[Optional[str]] = mapped_column(String(255))
+    website: Mapped[Optional[str]] = mapped_column(Text)
+    linkedin_url: Mapped[Optional[str]] = mapped_column(Text)
+    hq_location: Mapped[Optional[str]] = mapped_column(String(255))
     india_presence: Mapped[int] = mapped_column(Integer, default=0)
     company_type: Mapped[str | None] = mapped_column(String(80))
     employee_count: Mapped[str | None] = mapped_column(String(80))
@@ -67,7 +68,7 @@ class Company(Base, TimestampMixin):
     research_data: Mapped[str] = mapped_column(Text, default="{}")
     last_researched: Mapped[str | None] = mapped_column(String(40))
 
-    opportunities: Mapped[list[Opportunity]] = relationship(back_populates="company")
+    opportunities: Mapped[List["Opportunity"]] = relationship(back_populates="company")
 
     __table_args__ = (Index("idx_companies_domain", "domain", unique=True),)
 
@@ -76,7 +77,7 @@ class Opportunity(Base, TimestampMixin):
     __tablename__ = "opportunities"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    company_id: Mapped[int | None] = mapped_column(ForeignKey("companies.id"))
+    company_id: Mapped[Optional[int]] = mapped_column(ForeignKey("companies.id"))
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     role_type: Mapped[str] = mapped_column(String(80), nullable=False)
     location: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -84,7 +85,7 @@ class Opportunity(Base, TimestampMixin):
     country: Mapped[str] = mapped_column(String(120), default="India", nullable=False)
     job_url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     source: Mapped[str] = mapped_column(String(120), nullable=False)
-    description: Mapped[str | None] = mapped_column(Text)
+    description: Mapped[Optional[str]] = mapped_column(Text)
     requirements: Mapped[str] = mapped_column(Text, default="[]")
     content_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     posted_date: Mapped[str | None] = mapped_column(String(40))
@@ -94,10 +95,10 @@ class Opportunity(Base, TimestampMixin):
     duration_months: Mapped[int | None] = mapped_column(Integer)
     is_active: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 
-    company: Mapped[Company | None] = relationship(back_populates="opportunities")
-    scores: Mapped[list[OpportunityScore]] = relationship(back_populates="opportunity")
-    applications: Mapped[list[Application]] = relationship(back_populates="opportunity")
-    skill_gaps: Mapped[list[SkillGap]] = relationship(back_populates="opportunity")
+    company: Mapped[Optional["Company"]] = relationship(back_populates="opportunities")
+    scores: Mapped[List["OpportunityScore"]] = relationship(back_populates="opportunity")
+    applications: Mapped[List["Application"]] = relationship(back_populates="opportunity")
+    skill_gaps: Mapped[List["SkillGap"]] = relationship(back_populates="opportunity")
 
     __table_args__ = (
         Index("idx_opp_company", "company_id"),
@@ -124,8 +125,8 @@ class OpportunityScore(Base):
     reasoning: Mapped[str | None] = mapped_column(Text)
     scored_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
-    opportunity: Mapped[Opportunity] = relationship(back_populates="scores")
-    resume: Mapped[Resume] = relationship(back_populates="scores")
+    opportunity: Mapped["Opportunity"] = relationship(back_populates="scores")
+    resume: Mapped["Resume"] = relationship(back_populates="scores")
 
     __table_args__ = (
         UniqueConstraint("opportunity_id", "resume_id"),
@@ -152,10 +153,10 @@ class Application(Base, TimestampMixin):
     source: Mapped[str | None] = mapped_column(String(120))
     referral_contact: Mapped[str | None] = mapped_column(String(255))
 
-    opportunity: Mapped[Opportunity] = relationship(back_populates="applications")
-    resume: Mapped[Resume] = relationship(back_populates="applications")
-    events: Mapped[list[ApplicationEvent]] = relationship(back_populates="application")
-    outreach_messages: Mapped[list[OutreachMessage]] = relationship(back_populates="application")
+    opportunity: Mapped["Opportunity"] = relationship(back_populates="applications")
+    resume: Mapped["Resume"] = relationship(back_populates="applications")
+    events: Mapped[List["ApplicationEvent"]] = relationship(back_populates="application")
+    outreach_messages: Mapped[List["OutreachMessage"]] = relationship(back_populates="application")
 
     __table_args__ = (
         UniqueConstraint("opportunity_id", "resume_id"),
@@ -175,7 +176,7 @@ class ApplicationEvent(Base):
     details: Mapped[str] = mapped_column(Text, default="{}")
     created_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
-    application: Mapped[Application] = relationship(back_populates="events")
+    application: Mapped["Application"] = relationship(back_populates="events")
 
 
 class OutreachMessage(Base):
@@ -193,7 +194,7 @@ class OutreachMessage(Base):
     sent_at: Mapped[str | None] = mapped_column(String(40))
     created_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
-    application: Mapped[Application] = relationship(back_populates="outreach_messages")
+    application: Mapped["Application"] = relationship(back_populates="outreach_messages")
 
 
 class SkillGap(Base):
@@ -208,8 +209,8 @@ class SkillGap(Base):
     resources: Mapped[str] = mapped_column(Text, default="[]")
     created_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
-    resume: Mapped[Resume] = relationship(back_populates="skill_gaps")
-    opportunity: Mapped[Opportunity | None] = relationship(back_populates="skill_gaps")
+    resume: Mapped["Resume"] = relationship(back_populates="skill_gaps")
+    opportunity: Mapped[Optional["Opportunity"]] = relationship(back_populates="skill_gaps")
 
     __table_args__ = (UniqueConstraint("resume_id", "opportunity_id", "skill"),)
 
@@ -245,8 +246,8 @@ class LearningPlan(Base):
     created_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
     # relationships optional
-    resume: Mapped[Resume | None] = relationship(back_populates="learning_plans")
-    opportunity: Mapped[Opportunity | None] = relationship()
+    resume: Mapped[Optional["Resume"]] = relationship(back_populates="learning_plans")
+    opportunity: Mapped[Optional["Opportunity"]] = relationship()
 
 
 class JobRun(Base):
