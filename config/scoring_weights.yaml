@@ -1,0 +1,24 @@
+weights:
+  resume_match: 0.35
+  hiring_probability: 0.20
+  location_preference: 0.15
+  freshness: 0.15
+  company_quality: 0.10
+  competition_estimate: 0.05
+
+bands:
+  dream_match:
+    min: 95
+    label: Dream Match
+  excellent:
+    min: 90
+    label: Excellent Match
+  strong:
+    min: 80
+    label: Strong Match
+  good:
+    min: 70
+    label: Good Match
+  low:
+    min: 0
+    label: Low Priority

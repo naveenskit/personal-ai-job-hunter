@@ -1,0 +1,26 @@
+Extract structured information from this resume.
+
+Return strict JSON with exactly these top-level keys:
+{
+  "name": string or null,
+  "email": string or null,
+  "phone": string or null,
+  "location": string or null,
+  "summary": string or null,
+  "education": [{"institution": string, "degree": string, "dates": string, "details": string}],
+  "skills": [string],
+  "projects": [{"name": string, "description": string, "technologies": [string], "impact": string}],
+  "experience": [{"company": string, "role": string, "dates": string, "description": string, "technologies": [string]}],
+  "achievements": [string],
+  "role_signals": [string],
+  "seniority_signal": string or null
+}
+
+Rules:
+- Do not include markdown.
+- Do not invent facts.
+- Normalize skills into concise canonical names.
+- Include role_signals such as "backend", "cloud", "devops", "platform", "frontend", "ml" when supported by evidence.
+
+Resume text:
+{{RESUME_TEXT}}

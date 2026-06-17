@@ -1,0 +1,29 @@
+target_roles:
+  - Software Engineer Intern
+  - SDE Intern
+  - Backend Engineer Intern
+  - Cloud Engineer Intern
+  - DevOps Engineer Intern
+  - Platform Engineer Intern
+  - Associate Software Engineer
+  - Graduate Software Engineer
+
+role_types:
+  intern:
+    priority: 100
+    keywords:
+      - intern
+      - internship
+      - sde intern
+      - software engineer intern
+  new_grad:
+    priority: 90
+    keywords:
+      - new grad
+      - graduate engineer
+      - graduate software engineer
+  associate:
+    priority: 85
+    keywords:
+      - associate software engineer
+      - junior software engineer

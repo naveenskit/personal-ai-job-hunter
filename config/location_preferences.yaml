@@ -1,0 +1,24 @@
+countries:
+  India: 100
+  Remote: 95
+  Singapore: 80
+  UAE: 75
+  Europe: 70
+  United States: 65
+
+indian_cities:
+  Bengaluru: 100
+  Hyderabad: 95
+  Pune: 90
+  Chennai: 85
+  Jaipur: 85
+  Gurgaon: 82
+  Noida: 82
+  Mumbai: 80
+  Ahmedabad: 70
+  Kolkata: 65
+
+location_types:
+  remote: 100
+  hybrid: 90
+  onsite: 80

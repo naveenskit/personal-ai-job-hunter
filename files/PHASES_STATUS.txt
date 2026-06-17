@@ -1,0 +1,71 @@
+Project Phases Status
+
+Date: 2026-06-17
+
+Phases:
+
+Phase 1 — Foundation & Core
+- Status: Completed
+- Notes: Core project structure, database, basic resume ingestion, and app bootstrapping implemented.
+
+Phase 2 — Resume Ingestion & Parsing
+- Status: Completed
+- Notes: Resume parsing, text extraction, and persistence are in place; unit tests exist.
+
+Phase 3 — Job Source Integration
+- Status: Completed
+- Notes: Remote sources (RemoteOK, others), job importers and opportunity persistence implemented.
+
+Phase 4 — Company Research (Completed)
+- Status: Completed
+- Notes: Company enrichment agent, CSV import endpoints, tech-stack normalization, and research persistence implemented and tested.
+
+Phase 5 — Matching & Scoring (Completed)
+- Status: Completed
+- Notes: `MatchingAgent` with embedding-first scoring, AI fallback, `OpportunityScore` persistence, and matching endpoints implemented and tested.
+
+Phase 6 — Matching Operations & Observability (In Progress)
+- Status: In Progress
+- Notes: Bulk matching job implemented with background scheduler, `JobRun` persistence, job history and cancel endpoints, and basic in-memory metrics. Recent operational improvements:
+	- Added DB-backed `SchedulerLock` and `LockRepository` for distributed locking.
+	- Implemented `renew_lock` in the repository and a scheduler heartbeat to extend TTL while a job runs.
+	- `JobRunRepository.mark_finished` now records `finished_at` timestamps and duration.
+	- Alembic migrations added for `job_runs` and `scheduler_locks` (versions `0002_create_job_runs` and `0003_create_scheduler_locks`).
+	- CI updated to run Alembic migrations before tests and support a matrix (Ubuntu + Windows) with pip cache.
+	- Prometheus exporter endpoint implemented; falls back to JSON metrics when `prometheus_client` is unavailable.
+
+	Remaining work: additional Prometheus metric registration, leader-election policy or Postgres advisory lock migration, run-log retention and pagination.
+
+Phase 7 — Outreach & Application Automation
+- Status: In Progress (scaffolding)
+- Notes: Initial scaffolding added to begin Phase 7:
+	- `OutreachAgent` and `OutreachRepository` scaffolds for message generation and persistence.
+	- `app/outreach/routes.py` with endpoints to list templates and send outreach messages.
+	- Alembic migration `0004_create_outreach_templates` added (template table scaffold).
+
+	Remaining work: persist templates, implement mailer integration (SMTP/third-party), connect outreach flows to `applications` and `outreach_messages`, add safety/approval for bulk sends, and integration tests.
+
+Phase 8 — Application Tracker (Completed)
+- Status: Completed
+- Notes: Application tracking models, API routes and tests implemented.
+
+Phase 9 — Learning Engine / Skill Plans (Completed)
+- Status: Completed
+- Notes: Learning plan models, basic learning agent, endpoints and persistence implemented.
+
+Phase 10 — Skills Intelligence & Gap Analysis (Completed)
+- Status: Completed
+- Notes: `SkillGapAgent`, skills analyze endpoint and tests implemented.
+
+Next recommended steps:
+- Complete Phase 6 operational items:
+	1. Verify Prometheus metrics end-to-end and register richer counters/gauges (e.g. `matches_scored`, `job_duration_seconds`, `job_errors`, `running_jobs`).
+	2. Harden lock semantics: implement observable lock-steal policy or migrate to advisory locks when moving to Postgres.
+	3. Add retention/archival and pagination for `job_runs` and historical run logs.
+- Continue Phase 7 outreach work:
+	1. Persist outreach templates and add management endpoints (CRUD).
+	2. Implement mailer integration and transactional send+persist flow.
+	3. Add integration tests for outreach generation, persistence, and safety checks for bulk sends.
+- CI and observability:
+	1. Validate GitHub Actions matrix (Ubuntu + Windows) and pip cache in CI.
+	2. Ensure Alembic migrations run cleanly in CI and on first-run app bootstrap.

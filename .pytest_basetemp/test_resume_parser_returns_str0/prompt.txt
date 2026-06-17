@@ -1,0 +1,1 @@
+Parse this: {{RESUME_TEXT}}

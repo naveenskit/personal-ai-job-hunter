@@ -1,0 +1,40 @@
+Current Project Status
+
+Date: 2026-06-17
+
+Summary:
+- Completed: Phase 4 (Company Research) and Phase 5 (Matching & Scoring core).
+- Current phase: Phase 6 — Matching / Scoring Operations & Observability (IN PROGRESS).
+
+What was implemented recently:
+- MatchingAgent: embedding-first scoring with AI fallback, persistence of `OpportunityScore`.
+- API endpoints: top-matches, score a specific resume↔opportunity, trigger bulk run (`POST /api/v1/match/run_bulk`), run history (`GET /api/v1/match/history`), cancel run (`POST /api/v1/match/cancel/<run_id>`), job status (`GET /api/v1/match/status`).
+- Bulk matching job: `app/matching/job.py` (batch runner) and `app/matching/scheduler.py` to run periodically (scheduler disabled during tests).
+- Durable run records: `JobRun` model and `JobRunRepository` for run history and cancellation.
+- Metrics: in-memory counters and job-status tracking in `app/matching/metrics.py`.
+- CI: GitHub Actions workflow added at `.github/workflows/ci.yml` to run `ruff` and `pytest`.
+- Tests & Lint: ruff checks passed; full test suite passed locally (35 passed, some warnings).
+
+Outstanding / Next Actions (Phase 6+):
+- Add Prometheus instrumentation (prometheus_client) with safe fallback.
+- Add distributed job locking to avoid duplicate runs across multiple instances.
+- Improve CI (matrix runs, caching, Windows runner) and add migrations for `job_runs` (Alembic).
+- Expose run logs and richer metrics (average durations, failures, per-run breakdown).
+
+Notes:
+- Scheduler skips startup when `environment == "test"` to keep tests deterministic.
+- Tests were run locally with `--basetemp=.pytest_basetemp` to avoid Windows temp permission issues.
+
+Next step I can take now: implement Prometheus instrumentation and a small exporter endpoint. Reply "go ahead" to proceed.
+
+Phases summary (see files/PHASES_STATUS.txt for full details):
+- Phase 1 — Foundation & Core: Completed
+- Phase 2 — Resume Ingestion & Parsing: Completed
+- Phase 3 — Job Source Integration: Completed
+- Phase 4 — Company Research: Completed
+- Phase 5 — Matching & Scoring: Completed
+- Phase 6 — Matching Operations & Observability: In Progress
+- Phase 7 — Outreach & Application Automation: Not Completed
+- Phase 8 — Application Tracker: Completed
+- Phase 9 — Learning Engine: Completed
+- Phase 10 — Skills Intelligence & Gap Analysis: Completed

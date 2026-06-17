@@ -1,0 +1,35 @@
+# Job sources configuration for Phase 3
+sources:
+  - name: remoteok
+    enabled: false
+    settings:
+      api_url: "https://remoteok.com/api"
+      rate_limit_per_minute: 60
+sources:
+  remoteok:
+    enabled: true
+    base_url: https://remoteok.com/api
+    rate_limit_per_minute: 20
+  company_careers:
+    enabled: true
+    rate_limit_per_minute: 30
+    companies: []
+  linkedin:
+    enabled: false
+    note: Use official or compliant sources only; no ToS-violating scraping.
+  naukri:
+    enabled: false
+    note: Enable only when an approved API or feed is configured.
+  indeed:
+    enabled: false
+    note: Enable only when an approved API or feed is configured.
+
+default_query:
+  countries:
+    - India
+    - Remote
+  role_types:
+    - intern
+    - new_grad
+    - associate
+  limit_per_source: 50
