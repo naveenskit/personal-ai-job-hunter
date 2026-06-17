@@ -59,14 +59,14 @@ class Company(Base, TimestampMixin):
     linkedin_url: Mapped[Optional[str]] = mapped_column(Text)
     hq_location: Mapped[Optional[str]] = mapped_column(String(255))
     india_presence: Mapped[int] = mapped_column(Integer, default=0)
-    company_type: Mapped[str | None] = mapped_column(String(80))
-    employee_count: Mapped[str | None] = mapped_column(String(80))
-    funding_stage: Mapped[str | None] = mapped_column(String(80))
+    company_type: Mapped[Optional[str]] = mapped_column(String(80))
+    employee_count: Mapped[Optional[str]] = mapped_column(String(80))
+    funding_stage: Mapped[Optional[str]] = mapped_column(String(80))
     tech_stack: Mapped[str] = mapped_column(Text, default="[]")
     culture_tags: Mapped[str] = mapped_column(Text, default="[]")
     quality_score: Mapped[float] = mapped_column(Float, default=0.0)
     research_data: Mapped[str] = mapped_column(Text, default="{}")
-    last_researched: Mapped[str | None] = mapped_column(String(40))
+    last_researched: Mapped[Optional[str]] = mapped_column(String(40))
 
     opportunities: Mapped[List["Opportunity"]] = relationship(back_populates="company")
 
@@ -88,11 +88,11 @@ class Opportunity(Base, TimestampMixin):
     description: Mapped[Optional[str]] = mapped_column(Text)
     requirements: Mapped[str] = mapped_column(Text, default="[]")
     content_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    posted_date: Mapped[str | None] = mapped_column(String(40))
-    deadline: Mapped[str | None] = mapped_column(String(40))
-    stipend_min: Mapped[int | None] = mapped_column(Integer)
-    stipend_max: Mapped[int | None] = mapped_column(Integer)
-    duration_months: Mapped[int | None] = mapped_column(Integer)
+    posted_date: Mapped[Optional[str]] = mapped_column(String(40))
+    deadline: Mapped[Optional[str]] = mapped_column(String(40))
+    stipend_min: Mapped[Optional[int]] = mapped_column(Integer)
+    stipend_max: Mapped[Optional[int]] = mapped_column(Integer)
+    duration_months: Mapped[Optional[int]] = mapped_column(Integer)
     is_active: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 
     company: Mapped[Optional["Company"]] = relationship(back_populates="opportunities")
@@ -122,7 +122,7 @@ class OpportunityScore(Base):
     freshness: Mapped[float] = mapped_column(Float, nullable=False)
     company_quality: Mapped[float] = mapped_column(Float, nullable=False)
     competition_estimate: Mapped[float] = mapped_column(Float, nullable=False)
-    reasoning: Mapped[str | None] = mapped_column(Text)
+    reasoning: Mapped[Optional[str]] = mapped_column(Text)
     scored_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
     opportunity: Mapped["Opportunity"] = relationship(back_populates="scores")
@@ -145,13 +145,13 @@ class Application(Base, TimestampMixin):
         default=ApplicationStatus.DISCOVERED.value,
         nullable=False,
     )
-    applied_date: Mapped[str | None] = mapped_column(String(40))
-    response_date: Mapped[str | None] = mapped_column(String(40))
-    offer_date: Mapped[str | None] = mapped_column(String(40))
-    notes: Mapped[str | None] = mapped_column(Text)
+    applied_date: Mapped[Optional[str]] = mapped_column(String(40))
+    response_date: Mapped[Optional[str]] = mapped_column(String(40))
+    offer_date: Mapped[Optional[str]] = mapped_column(String(40))
+    notes: Mapped[Optional[str]] = mapped_column(Text)
     priority: Mapped[int] = mapped_column(Integer, default=5)
-    source: Mapped[str | None] = mapped_column(String(120))
-    referral_contact: Mapped[str | None] = mapped_column(String(255))
+    source: Mapped[Optional[str]] = mapped_column(String(120))
+    referral_contact: Mapped[Optional[str]] = mapped_column(String(255))
 
     opportunity: Mapped["Opportunity"] = relationship(back_populates="applications")
     resume: Mapped["Resume"] = relationship(back_populates="applications")
@@ -171,8 +171,8 @@ class ApplicationEvent(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     application_id: Mapped[int] = mapped_column(ForeignKey("applications.id"), nullable=False)
     event_type: Mapped[str] = mapped_column(String(80), nullable=False)
-    from_status: Mapped[str | None] = mapped_column(String(40))
-    to_status: Mapped[str | None] = mapped_column(String(40))
+    from_status: Mapped[Optional[str]] = mapped_column(String(40))
+    to_status: Mapped[Optional[str]] = mapped_column(String(40))
     details: Mapped[str] = mapped_column(Text, default="{}")
     created_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
@@ -185,13 +185,13 @@ class OutreachMessage(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     application_id: Mapped[int] = mapped_column(ForeignKey("applications.id"), nullable=False)
     message_type: Mapped[str] = mapped_column(String(80), nullable=False)
-    recipient_name: Mapped[str | None] = mapped_column(String(255))
-    recipient_email: Mapped[str | None] = mapped_column(String(255))
-    recipient_title: Mapped[str | None] = mapped_column(String(255))
-    subject: Mapped[str | None] = mapped_column(String(255))
+    recipient_name: Mapped[Optional[str]] = mapped_column(String(255))
+    recipient_email: Mapped[Optional[str]] = mapped_column(String(255))
+    recipient_title: Mapped[Optional[str]] = mapped_column(String(255))
+    subject: Mapped[Optional[str]] = mapped_column(String(255))
     body: Mapped[str] = mapped_column(Text, nullable=False)
     is_sent: Mapped[int] = mapped_column(Integer, default=0)
-    sent_at: Mapped[str | None] = mapped_column(String(40))
+    sent_at: Mapped[Optional[str]] = mapped_column(String(40))
     created_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
     application: Mapped["Application"] = relationship(back_populates="outreach_messages")
@@ -202,7 +202,7 @@ class SkillGap(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     resume_id: Mapped[int] = mapped_column(ForeignKey("resumes.id"), nullable=False)
-    opportunity_id: Mapped[int | None] = mapped_column(ForeignKey("opportunities.id"))
+    opportunity_id: Mapped[Optional[int]] = mapped_column(ForeignKey("opportunities.id"))
     skill: Mapped[str] = mapped_column(String(120), nullable=False)
     gap_type: Mapped[str] = mapped_column(String(40), nullable=False)
     importance: Mapped[str] = mapped_column(String(40), nullable=False)
@@ -222,7 +222,7 @@ class WeeklyReport(Base):
     week_start: Mapped[str] = mapped_column(String(40), unique=True, nullable=False)
     report_data: Mapped[str] = mapped_column(Text, nullable=False)
     telegram_sent: Mapped[int] = mapped_column(Integer, default=0)
-    file_path: Mapped[str | None] = mapped_column(Text)
+    file_path: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
 
@@ -240,8 +240,8 @@ class LearningPlan(Base):
     __tablename__ = "learning_plans"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    resume_id: Mapped[int | None] = mapped_column(ForeignKey("resumes.id"))
-    opportunity_id: Mapped[int | None] = mapped_column(ForeignKey("opportunities.id"))
+    resume_id: Mapped[Optional[int]] = mapped_column(ForeignKey("resumes.id"))
+    opportunity_id: Mapped[Optional[int]] = mapped_column(ForeignKey("opportunities.id"))
     steps: Mapped[str] = mapped_column(Text, default="[]", nullable=False)
     created_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
 
@@ -257,11 +257,11 @@ class JobRun(Base):
     job_name: Mapped[str] = mapped_column(String(120), nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="running", nullable=False)
     started_at: Mapped[str] = mapped_column(String(40), default=utc_now_iso, nullable=False)
-    finished_at: Mapped[str | None] = mapped_column(String(40))
-    duration_seconds: Mapped[float | None] = mapped_column(Float)
-    processed_count: Mapped[int | None] = mapped_column(Integer)
-    scored_count: Mapped[int | None] = mapped_column(Integer)
-    error: Mapped[str | None] = mapped_column(Text)
+    finished_at: Mapped[Optional[str]] = mapped_column(String(40))
+    duration_seconds: Mapped[Optional[float]] = mapped_column(Float)
+    processed_count: Mapped[Optional[int]] = mapped_column(Integer)
+    scored_count: Mapped[Optional[int]] = mapped_column(Integer)
+    error: Mapped[Optional[str]] = mapped_column(Text)
     cancel_requested: Mapped[int] = mapped_column(Integer, default=0)
 
 
@@ -270,8 +270,8 @@ class SchedulerLock(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
-    owner: Mapped[str | None] = mapped_column(String(255))
-    acquired_at: Mapped[str | None] = mapped_column(String(40))
-    expires_at: Mapped[str | None] = mapped_column(String(40))
+    owner: Mapped[Optional[str]] = mapped_column(String(255))
+    acquired_at: Mapped[Optional[str]] = mapped_column(String(40))
+    expires_at: Mapped[Optional[str]] = mapped_column(String(40))
 
 
