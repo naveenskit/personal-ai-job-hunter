@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    image: ghcr.io/${GITHUB_OWNER}/${GITHUB_REPO}:latest
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  # Example Postgres service for local prod-like testing
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: jobhunter
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: jobhunter
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

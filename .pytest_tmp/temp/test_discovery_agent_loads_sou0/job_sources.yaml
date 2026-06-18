@@ -1,8 +1,0 @@
-
-sources:
-  - name: remoteok
-    enabled: true
-    base_url: https://remoteok.com/api
-    rate_limit_per_minute: 20
-  - name: linkedin
-    enabled: false

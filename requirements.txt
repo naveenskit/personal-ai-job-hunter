@@ -13,3 +13,4 @@ python-dotenv==1.2.2
 PyYAML==6.0.3
 SQLAlchemy==2.0.32
 structlog==24.4.0
+prometheus-client==0.16.0

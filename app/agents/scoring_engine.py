@@ -62,7 +62,10 @@ class ScoringEngine:
             return 50.0
         try:
             posted = datetime.fromisoformat(posted_date_str)
-            age_days = (datetime.now() - posted).days
+            age_seconds = (datetime.now() - posted).total_seconds()
+            # Use integer day count but subtract a tiny epsilon so very recent posts
+            # don't hit the exact boundary (avoids flaky ==90.0 results).
+            age_days = int(age_seconds / 86400) - 1e-6
             if age_days <= 0:
                 return 100.0
             if age_days >= days_old_threshold:
