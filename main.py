@@ -1,7 +1,7 @@
 import asyncio
 
 from flask import Flask, jsonify
-from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST, REGISTRY
 from flask import Response
 
 from app.core.logging import configure_logging, get_logger
@@ -97,8 +97,21 @@ def create_app() -> Flask:
             200,
         )
 
-    # Prometheus metrics endpoint
-    REQUEST_COUNTER = Counter("jobhunter_requests_total", "Total HTTP requests")
+    # Prometheus metrics endpoint — avoid duplicate registration across app instances
+    try:
+        REQUEST_COUNTER = Counter("jobhunter_requests_total", "Total HTTP requests")
+    except ValueError:
+        # metric already registered in the global REGISTRY — reuse it
+        existing = None
+        try:
+            existing = REGISTRY._names_to_collectors.get("jobhunter_requests_total")
+        except Exception:
+            existing = None
+        if existing is not None:
+            REQUEST_COUNTER = existing
+        else:
+            # fallback: raise so the error is visible
+            raise
 
     @app.get("/metrics")
     def metrics():
