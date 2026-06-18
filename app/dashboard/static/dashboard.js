@@ -98,4 +98,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadStatsAndRender();
   loadApplications();
+  // SSE subscription for live updates
+  try {
+    const es = new EventSource('/dashboard/stream');
+    es.onmessage = (evt)=>{
+      try{
+        const data = JSON.parse(evt.data);
+        if (data.type === 'job_run'){
+          const feed = document.querySelector('.activity');
+          if (feed){
+            const tbody = document.querySelector('#apps-table tbody');
+            // prepend an activity item
+            const div = document.createElement('div');
+            div.className = 'item';
+            const time = new Date().toLocaleTimeString();
+            div.innerHTML = `<div class="time">${time}</div><div class="text"><div class="what">✓ Manual job triggered: ${data.job_name}</div><div class="small">Started ${data.started_at||''}</div></div>`;
+            feed.prepend(div);
+          }
+          // refresh stats and table
+          loadStatsAndRender();
+          loadApplications();
+        }
+      }catch(e){console.warn(e)}
+    }
+  } catch(e){console.warn('SSE not available', e)}
 });

@@ -13,6 +13,9 @@ from app.database.models import (
 from config.settings import get_settings
 from app.core.types import utc_now_iso
 from pydantic import SecretStr
+import json
+from flask import Response
+from .broadcaster import subscribe, unsubscribe, publish
 
 
 bp = Blueprint("dashboard", __name__, url_prefix="/dashboard", template_folder="templates", static_folder="static")
@@ -172,4 +175,33 @@ async def run_job():
         )
         session.add(jr)
 
+    # publish a live event for SSE listeners
+    try:
+        publish({
+            "type": "job_run",
+            "job_name": job_name,
+            "started_at": jr.started_at,
+            "finished_at": jr.finished_at,
+        })
+    except Exception:
+        pass
+
     return jsonify({"ok": True, "job_name": job_name})
+
+
+@bp.get('/stream')
+async def stream():
+    async def event_stream():
+        q = await subscribe()
+        try:
+            while True:
+                event = await q.get()
+                try:
+                    data = json.dumps(event)
+                except Exception:
+                    data = str(event)
+                yield f"data: {data}\n\n"
+        finally:
+            await unsubscribe(q)
+
+    return Response(event_stream(), mimetype='text/event-stream')
