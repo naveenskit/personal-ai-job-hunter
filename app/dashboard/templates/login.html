@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NIRANTAR — Login</title>
+    <link rel="stylesheet" href="/dashboard/static/dashboard.css">
+    <style>
+      .login-wrap{display:flex;align-items:center;justify-content:center;height:100vh}
+      .login-card{background:var(--card);padding:28px;border-radius:12px;width:420px;border:1px solid var(--border)}
+      .login-card h2{margin:0 0 8px 0}
+      .login-card form{display:flex;flex-direction:column;gap:12px}
+      .input{padding:10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text)}
+      .btn{padding:10px;border-radius:8px;border:none;background:linear-gradient(90deg,var(--primary),var(--secondary));color:#fff;font-weight:700}
+      .error{color:var(--danger)}
+    </style>
+  </head>
+  <body>
+    <div class="login-wrap">
+      <div class="login-card">
+        <h2>NIRANTAR</h2>
+        <p class="small">The Agent That Never Stops — please sign in</p>
+        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+        <form method="post" action="/dashboard/login">
+          <input class="input" name="password" type="password" placeholder="Dashboard password" />
+          <button class="btn" type="submit">Sign in</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

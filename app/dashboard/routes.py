@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, request, session, redirect, url_for
 from sqlalchemy import select, func
 
 from app.database.connection import session_scope
@@ -56,8 +56,66 @@ def _check_dashboard_auth(request) -> bool:
     token: SecretStr | None = settings.dashboard_token
     if token is None:
         return True
+    # allow session-based auth (for browser)
+    if session.get("dashboard_authed"):
+        return True
     header = request.headers.get("X-DASHBOARD-TOKEN")
-    return header is not None and header == token.get_secret_value()
+    if header is not None and header == token.get_secret_value():
+        return True
+    return False
+
+
+
+@bp.before_app_request
+def _dashboard_before_request():
+    # Only enforce for dashboard blueprint routes when a token is configured
+    settings = get_settings()
+    if settings.dashboard_token is None:
+        return
+    # allow static and login/logout endpoints without auth
+    path = request.path or ""
+    if path.startswith(url_for('dashboard.static', filename='')):
+        return
+    if path.startswith(url_for('dashboard.dashboard_home')):
+        # dashboard home requires auth; allow check below
+        pass
+    if path in (url_for('dashboard.login'), url_for('dashboard.logout')):
+        return
+    # If already authed in session or via header, continue
+    if session.get('dashboard_authed'):
+        return
+    header = request.headers.get('X-DASHBOARD-TOKEN')
+    if header and header == settings.dashboard_token.get_secret_value():
+        return
+    # Otherwise redirect to login for browser requests
+    if request.endpoint and request.endpoint.startswith('dashboard.'):
+        return redirect(url_for('dashboard.login'))
+
+
+@bp.get('/login')
+def login():
+    # render login form
+    return render_template('login.html')
+
+
+@bp.post('/login')
+def login_post():
+    settings = get_settings()
+    if settings.dashboard_token is None:
+        return redirect(url_for('dashboard.dashboard_home'))
+    pw = request.form.get('password')
+    if pw is None:
+        return render_template('login.html', error='Missing password')
+    if pw == settings.dashboard_token.get_secret_value():
+        session['dashboard_authed'] = True
+        return redirect(url_for('dashboard.dashboard_home'))
+    return render_template('login.html', error='Invalid password')
+
+
+@bp.get('/logout')
+def logout():
+    session.pop('dashboard_authed', None)
+    return redirect(url_for('dashboard.login'))
 
 
 @bp.get("/api/applications")
