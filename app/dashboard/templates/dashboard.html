@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard — Personal AI Job Hunter</title>
+    <style>
+      body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; padding: 2rem; }
+      .card { border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+      h1 { margin-bottom: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Dashboard (alpha)</h1>
+    <div class="card">
+      <strong>Service status:</strong> <span id="status">loading...</span>
+    </div>
+    <div class="card">
+      <strong>Quick actions</strong>
+      <ul>
+        <li><a href="/api/v1/health">Health</a></li>
+        <li><a href="/metrics">Metrics</a></li>
+      </ul>
+    </div>
+
+    <script>
+      async function loadStatus() {
+        try {
+          const r = await fetch('/api/v1/health');
+          const j = await r.json();
+          document.getElementById('status').textContent = j.data.status + ' (' + j.data.environment + ')';
+        } catch (e) {
+          document.getElementById('status').textContent = 'unavailable';
+        }
+      }
+      loadStatus();
+    </script>
+  </body>
+</html>

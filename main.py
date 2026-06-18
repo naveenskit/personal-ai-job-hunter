@@ -75,6 +75,14 @@ def create_app() -> Flask:
     except Exception:
         pass
 
+    try:
+        # dashboard blueprint (Phase 13)
+        from app.dashboard.routes import bp as dashboard_bp
+
+        app.register_blueprint(dashboard_bp)
+    except Exception:
+        pass
+
     @app.get("/api/v1/health")
     def health() -> tuple[dict[str, object], int]:
         return (
