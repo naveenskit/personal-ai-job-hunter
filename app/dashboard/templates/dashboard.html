@@ -6,58 +6,127 @@
     <title>Dashboard — Personal AI Job Hunter</title>
     <link rel="stylesheet" href="/dashboard/static/dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/dashboard/static/dashboard.js" defer></script>
   </head>
   <body>
-    <div class="container">
-      <h1>Dashboard</h1>
-      <div class="cards">
-        <div class="card small">Service status: <span id="status">loading...</span></div>
-        <div class="card small">Environment: <span id="env">-</span></div>
-      </div>
-
-      <div class="grid">
-        <div>
-          <div class="card">
-            <strong>Overview</strong>
-            <div class="chart-wrap"><canvas id="countsChart"></canvas></div>
-          </div>
-
-          <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center">
-              <strong>Recent Applications</strong>
-              <input id="apps-search" class="search" placeholder="filter role or company" />
-            </div>
-            <table id="apps-table" style="width:100%; border-collapse: collapse;">
-              <thead>
-                <tr><th style="text-align:left">ID</th><th>Status</th><th>Applied</th><th>Role</th><th>Company</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+    <div class="nirantar-app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo">N</div>
+          <div>
+            <div class="title">NIRANTAR</div>
+            <div class="tag">The Agent That Never Stops</div>
           </div>
         </div>
 
-        <div>
-          <div class="card">
-            <strong>Quick Actions</strong>
-            <div style="margin-top:0.5rem">
-              <button id="run-job">Trigger Manual Job</button>
-              <div id="run-result"></div>
+        <nav class="nav">
+          <a class="active">Overview</a>
+          <a>Applications</a>
+          <a>Companies</a>
+          <a>Job Discovery</a>
+          <a>Agent Runs</a>
+          <a>Analytics</a>
+          <a>Reports</a>
+          <a>Settings</a>
+        </nav>
+
+        <div class="status">
+          <div style="display:flex;align-items:center"><span class="dot"></span><strong>ACTIVE</strong></div>
+          <div class="small" style="margin-top:8px">Running continuously for: <strong>43h 21m</strong></div>
+          <div class="small" style="margin-top:6px">Last Action: Applied to Backend Engineer @ Razorpay</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="header">
+          <div class="title-wrap">
+            <h2>Nirantar Command Center</h2>
+            <p>Your autonomous AI workforce is actively working.</p>
+          </div>
+          <div class="header-right">
+            <div class="pill">🕒 <span id="now">--</span></div>
+            <div class="avatar">NI</div>
+          </div>
+        </header>
+
+        <section class="hero">
+          <div class="hero-card">
+            <div class="hero-left">
+              <div class="brand-hero">NIRANTAR</div>
+              <h1 class="hero-title">The Agent That Never Stops</h1>
+              <p class="hero-sub">Autonomously discovering jobs, optimizing resumes, applying to opportunities, and tracking responses 24/7.</p>
+
+              <div class="live-status">
+                <div style="display:flex;align-items:center;gap:8px"><span class="dot"></span><strong>🟢 ACTIVE</strong></div>
+                <div style="margin-left:12px;color:var(--muted)">Current Tasks: Scanning LinkedIn · Monitoring 250+ company pages · Sending applications</div>
+              </div>
             </div>
           </div>
 
-          <div class="card">
-            <strong>Counts</strong>
-            <ul>
-              <li>Resumes: <span id="resumes">-</span></li>
-              <li>Companies: <span id="companies">-</span></li>
-              <li>Opportunities: <span id="opps">-</span></li>
-              <li>Applications: <span id="applications">-</span></li>
-              <li>Weekly Reports: <span id="weekly_reports">-</span></li>
-              <li>Job Runs: <span id="job_runs">-</span></li>
-            </ul>
+          <div style="width:140px;display:flex;flex-direction:column;align-items:center;gap:8px">
+            <div class="progress-ring">94%</div>
+            <div class="small">Agent Efficiency</div>
+            <div class="small">Running Time: <strong>43h</strong></div>
           </div>
+        </section>
+
+        <section class="metrics">
+          <div class="metric"><div class="label">Jobs Discovered</div><div class="num">1,248</div></div>
+          <div class="metric"><div class="label">Applications Sent</div><div class="num">327</div></div>
+          <div class="metric"><div class="label">Interviews Scheduled</div><div class="num">14</div></div>
+          <div class="metric"><div class="label">Response Rate</div><div class="num">9.7%</div></div>
+        </section>
+
+        <div class="grid-two">
+          <div>
+            <div class="card">
+              <h3>AI Activity Feed</h3>
+              <div class="activity">
+                <div class="item"><div class="time">10:42 PM</div><div class="text"><div class="what">✓ Applied at Atlassian</div><div class="small">Application sent using profile: Senior Backend</div></div></div>
+                <div class="item"><div class="time">10:37 PM</div><div class="text"><div class="what">✓ Resume optimized</div><div class="small">Adjusted summary and skills for role</div></div></div>
+                <div class="item"><div class="time">10:34 PM</div><div class="text"><div class="what">✓ Found 12 new matching jobs</div><div class="small">Sources: LinkedIn, Company Sites</div></div></div>
+                <div class="item"><div class="time">10:30 PM</div><div class="text"><div class="what">✓ Follow-up email sent</div><div class="small">To recruiter @ Razorpay</div></div></div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:12px">
+              <h3>Performance Analytics</h3>
+              <canvas id="countsChart" style="height:200px"></canvas>
+            </div>
+          </div>
+
+          <aside>
+            <div class="card">
+              <h3>Active Agents</h3>
+              <div class="agents">
+                <div class="agent"><div class="name">Job Discovery Agent</div><div class="status">Active</div></div>
+                <div class="agent"><div class="name">Resume Optimization Agent</div><div class="status">Active</div></div>
+                <div class="agent"><div class="name">Application Sender Agent</div><div class="status">Active</div></div>
+                <div class="agent"><div class="name">Response Tracker Agent</div><div class="status">Active</div></div>
+                <div class="agent"><div class="name">Company Research Agent</div><div class="status">Active</div></div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:12px">
+              <h3>Quick Actions</h3>
+              <div class="quick-actions">
+                <button class="btn-primary" id="run-job">Trigger Manual Run</button>
+                <button class="btn-secondary">Scan New Jobs</button>
+                <button class="btn-secondary">Optimize Resume</button>
+                <button class="btn-secondary">Generate Weekly Report</button>
+                <button class="btn-secondary">Export Applications</button>
+              </div>
+              <div id="run-result" style="margin-top:8px;color:var(--muted)"></div>
+            </div>
+          </aside>
         </div>
-      </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3>Recent Applications</h3>
+          <input id="apps-search" placeholder="Filter company or role" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);margin-bottom:8px" />
+          <table class="table" id="apps-table"><thead><tr><th>Company</th><th>Role</th><th>Match</th><th>Applied</th><th>Status</th></tr></thead><tbody></tbody></table>
+        </div>
+      </main>
     </div>
     <div class="card">
       <strong>Recent Applications</strong>
