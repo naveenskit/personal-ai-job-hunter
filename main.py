@@ -1,6 +1,8 @@
 import asyncio
 
 from flask import Flask, jsonify
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
+from flask import Response
 
 from app.core.logging import configure_logging, get_logger
 from app.database.connection import init_db
@@ -86,6 +88,15 @@ def create_app() -> Flask:
             },
             200,
         )
+
+    # Prometheus metrics endpoint
+    REQUEST_COUNTER = Counter("jobhunter_requests_total", "Total HTTP requests")
+
+    @app.get("/metrics")
+    def metrics():
+        REQUEST_COUNTER.inc()
+        data = generate_latest()
+        return Response(data, mimetype=CONTENT_TYPE_LATEST)
 
     @app.get("/")
     def index() -> tuple[dict[str, object], int]:
