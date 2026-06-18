@@ -10,9 +10,12 @@ from app.database.models import (
     WeeklyReport,
     JobRun,
 )
+from config.settings import get_settings
+from app.core.types import utc_now_iso
+from pydantic import SecretStr
 
 
-bp = Blueprint("dashboard", __name__, url_prefix="/dashboard", template_folder="templates")
+bp = Blueprint("dashboard", __name__, url_prefix="/dashboard", template_folder="templates", static_folder="static")
 
 
 @bp.get("/")
@@ -46,3 +49,69 @@ async def dashboard_stats():
             "job_runs": counts[5],
         }
     )
+
+
+def _check_dashboard_auth(request) -> bool:
+    settings = get_settings()
+    token: SecretStr | None = settings.dashboard_token
+    if token is None:
+        return True
+    header = request.headers.get("X-DASHBOARD-TOKEN")
+    return header is not None and header == token.get_secret_value()
+
+
+@bp.get("/api/applications")
+async def recent_applications(request=None):
+    """Return recent applications for the dashboard table."""
+    from flask import request as flask_request
+
+    if not _check_dashboard_auth(flask_request):
+        return (jsonify({"error": "unauthorized"}), 401)
+
+    async with session_scope() as session:
+        q = select(
+            Application.id,
+            Application.status,
+            Application.applied_date,
+            Opportunity.title,
+            Company.name,
+        ).join(Opportunity, Opportunity.id == Application.opportunity_id, isouter=True)
+        q = q.join(Company, Company.id == Opportunity.company_id, isouter=True)
+        q = q.order_by(Application.applied_date.desc().nullslast()).limit(20)
+        result = await session.execute(q)
+        rows = [
+            {
+                "id": r[0],
+                "status": r[1],
+                "applied_date": r[2],
+                "title": r[3],
+                "company": r[4],
+            }
+            for r in result.fetchall()
+        ]
+
+    return jsonify(rows)
+
+
+@bp.post("/api/run-job")
+async def run_job():
+    """Manual trigger for a simple job run record (for demo)."""
+    from flask import request as flask_request
+
+    if not _check_dashboard_auth(flask_request):
+        return (jsonify({"error": "unauthorized"}), 401)
+
+    settings = get_settings()
+    job_name = flask_request.json.get("job_name", "manual_trigger")
+    async with session_scope() as session:
+        jr = JobRun(
+            job_name=job_name,
+            status="completed",
+            started_at=utc_now_iso(),
+            finished_at=utc_now_iso(),
+            duration_seconds=0,
+            processed_count=0,
+        )
+        session.add(jr)
+
+    return jsonify({"ok": True, "job_name": job_name})

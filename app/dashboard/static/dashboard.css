@@ -1,0 +1,15 @@
+body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; padding: 2rem; background:#f7fafc; color:#0f172a }
+.container { max-width:1100px; margin:0 auto; }
+.grid { display:grid; grid-template-columns: 1fr 360px; gap:1rem; align-items:start }
+.card { background:white; border:1px solid #e6eef8; padding:1rem; border-radius:10px; box-shadow:0 1px 2px rgba(2,6,23,0.04) }
+h1 { margin:0 0 0.5rem 0 }
+.cards { display:flex; gap:0.75rem; margin-bottom:1rem }
+.small { font-size:0.9rem; color:#475569 }
+table { width:100%; border-collapse:collapse }
+th, td { padding:0.5rem 0.6rem; border-bottom:1px solid #eef2f7 }
+thead th { text-align:left; color:#0f172a; font-weight:600 }
+tr:nth-child(even) td { background:#fbfdff }
+#run-job { background:#0b69ff; color:#fff; border:none; padding:0.5rem 0.75rem; border-radius:6px; cursor:pointer }
+#run-result { margin-top:0.5rem; font-size:0.9rem }
+.search { margin-bottom:0.5rem }
+.chart-wrap { height:220px }

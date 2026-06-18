@@ -28,6 +28,9 @@ class Settings(BaseSettings):
 
     telegram_bot_token: SecretStr | None = None
     telegram_chat_id: str | None = None
+    # Optional token to protect the dashboard endpoints. If set, requests
+    # to dashboard APIs must include header 'X-DASHBOARD-TOKEN'.
+    dashboard_token: SecretStr | None = None
 
     data_dir: Path = Path("./data")
     log_dir: Path = Path("./logs")

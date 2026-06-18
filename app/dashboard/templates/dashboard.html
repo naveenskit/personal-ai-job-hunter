@@ -4,27 +4,74 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dashboard — Personal AI Job Hunter</title>
-    <style>
-      body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; padding: 2rem; }
-      .card { border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-      h1 { margin-bottom: 0.5rem; }
-    </style>
+    <link rel="stylesheet" href="/dashboard/static/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <h1>Dashboard (alpha)</h1>
-    <div class="card">
-      <strong>Service status:</strong> <span id="status">loading...</span>
+    <div class="container">
+      <h1>Dashboard</h1>
+      <div class="cards">
+        <div class="card small">Service status: <span id="status">loading...</span></div>
+        <div class="card small">Environment: <span id="env">-</span></div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div class="card">
+            <strong>Overview</strong>
+            <div class="chart-wrap"><canvas id="countsChart"></canvas></div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+              <strong>Recent Applications</strong>
+              <input id="apps-search" class="search" placeholder="filter role or company" />
+            </div>
+            <table id="apps-table" style="width:100%; border-collapse: collapse;">
+              <thead>
+                <tr><th style="text-align:left">ID</th><th>Status</th><th>Applied</th><th>Role</th><th>Company</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <strong>Quick Actions</strong>
+            <div style="margin-top:0.5rem">
+              <button id="run-job">Trigger Manual Job</button>
+              <div id="run-result"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <strong>Counts</strong>
+            <ul>
+              <li>Resumes: <span id="resumes">-</span></li>
+              <li>Companies: <span id="companies">-</span></li>
+              <li>Opportunities: <span id="opps">-</span></li>
+              <li>Applications: <span id="applications">-</span></li>
+              <li>Weekly Reports: <span id="weekly_reports">-</span></li>
+              <li>Job Runs: <span id="job_runs">-</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="card">
-      <strong>Counts</strong>
-      <ul>
-        <li>Resumes: <span id="resumes">-</span></li>
-        <li>Companies: <span id="companies">-</span></li>
-        <li>Opportunities: <span id="opps">-</span></li>
-        <li>Applications: <span id="applications">-</span></li>
-        <li>Weekly Reports: <span id="weekly_reports">-</span></li>
-        <li>Job Runs: <span id="job_runs">-</span></li>
-      </ul>
+      <strong>Recent Applications</strong>
+      <table id="apps-table" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr><th style="text-align:left">ID</th><th>Status</th><th>Applied</th><th>Role</th><th>Company</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <strong>Run Jobs</strong>
+      <button id="run-job">Trigger Manual Job</button>
+      <div id="run-result"></div>
     </div>
     <div class="card">
       <strong>Quick actions</strong>
@@ -58,6 +105,68 @@
             // leave dash values
           }
         }
+
+        async function loadApplications(filter='') {
+          try {
+            const r = await fetch('/dashboard/api/applications');
+            const rows = await r.json();
+            const tbody = document.querySelector('#apps-table tbody');
+            tbody.innerHTML = '';
+            for (const row of rows) {
+              if (filter) {
+                const f = filter.toLowerCase();
+                const match = (row.title||'').toLowerCase().includes(f) || (row.company||'').toLowerCase().includes(f);
+                if (!match) continue;
+              }
+              const tr = document.createElement('tr');
+              tr.innerHTML = `<td>${row.id}</td><td>${row.status}</td><td>${row.applied_date||'-'}</td><td>${row.title||'-'}</td><td>${row.company||'-'}</td>`;
+              tbody.appendChild(tr);
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        document.getElementById('run-job').addEventListener('click', async () => {
+          try {
+            const r = await fetch('/dashboard/api/run-job', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({job_name:'manual_trigger'}) });
+            const j = await r.json();
+            document.getElementById('run-result').textContent = JSON.stringify(j);
+            loadCounts();
+            loadApplications();
+          } catch (e) {
+            document.getElementById('run-result').textContent = 'error';
+          }
+        });
+
+        // search filter
+        document.getElementById('apps-search').addEventListener('input', (e)=>{
+          loadApplications(e.target.value)
+        })
+
+        // chart
+        let countsChart = null;
+        function renderChart(data) {
+          const ctx = document.getElementById('countsChart').getContext('2d');
+          const labels = ['Resumes','Companies','Opportunities','Applications','WeeklyReports','JobRuns'];
+          const values = [data.resumes,data.companies,data.opportunities,data.applications,data.weekly_reports,data.job_runs];
+          if (countsChart) countsChart.destroy();
+          countsChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Counts', data: values, backgroundColor: '#0b69ff' }] },
+            options: { responsive:true, maintainAspectRatio:false }
+          })
+        }
+
+        async function loadAll() {
+          await loadCounts();
+          const r = await fetch('/dashboard/api/stats');
+          const j = await r.json();
+          renderChart(j);
+          await loadApplications();
+        }
+
+        loadAll();
 
         loadStatus();
         loadCounts();
