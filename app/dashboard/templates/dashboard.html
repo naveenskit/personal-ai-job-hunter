@@ -16,6 +16,17 @@
       <strong>Service status:</strong> <span id="status">loading...</span>
     </div>
     <div class="card">
+      <strong>Counts</strong>
+      <ul>
+        <li>Resumes: <span id="resumes">-</span></li>
+        <li>Companies: <span id="companies">-</span></li>
+        <li>Opportunities: <span id="opps">-</span></li>
+        <li>Applications: <span id="applications">-</span></li>
+        <li>Weekly Reports: <span id="weekly_reports">-</span></li>
+        <li>Job Runs: <span id="job_runs">-</span></li>
+      </ul>
+    </div>
+    <div class="card">
       <strong>Quick actions</strong>
       <ul>
         <li><a href="/api/v1/health">Health</a></li>
@@ -32,8 +43,24 @@
         } catch (e) {
           document.getElementById('status').textContent = 'unavailable';
         }
-      }
-      loadStatus();
+
+        async function loadCounts() {
+          try {
+            const r = await fetch('/dashboard/api/stats');
+            const j = await r.json();
+            document.getElementById('resumes').textContent = j.resumes;
+            document.getElementById('companies').textContent = j.companies;
+            document.getElementById('opps').textContent = j.opportunities;
+            document.getElementById('applications').textContent = j.applications;
+            document.getElementById('weekly_reports').textContent = j.weekly_reports;
+            document.getElementById('job_runs').textContent = j.job_runs;
+          } catch (e) {
+            // leave dash values
+          }
+        }
+
+        loadStatus();
+        loadCounts();
     </script>
   </body>
 </html>
