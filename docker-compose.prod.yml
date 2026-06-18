@@ -1,4 +1,27 @@
 version: '3.8'
+services:
+  web:
+    build: .
+    command: gunicorn -c gunicorn.conf.py wsgi:app
+    restart: always
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - APP_SECRET_KEY=${APP_SECRET_KEY}
+    expose:
+      - 8000
+    volumes:
+      - .:/app:ro
+
+  nginx:
+    image: nginx:stable
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./app/dashboard/static:/app/app/dashboard/static:ro
+version: '3.8'
 
 services:
   web:

@@ -1,0 +1,15 @@
+[Unit]
+Description=Personal AI Job Hunter Gunicorn Service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/personal-ai-job-hunter
+Environment="DATABASE_URL=postgresql://..."
+Environment="APP_SECRET_KEY=replace-me"
+ExecStart=/usr/local/bin/gunicorn -c /opt/personal-ai-job-hunter/gunicorn.conf.py wsgi:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
