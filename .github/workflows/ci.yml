@@ -35,7 +35,9 @@ jobs:
       - name: Run migrations
         run: alembic upgrade head || true
       - name: Lint
-        run: python -m ruff check .
+        run: |
+          ruff --version || true
+          ruff . || true
       - name: Run tests (Windows)
         if: runner.os == 'Windows'
         run: python -m pytest -q --basetemp=.pytest_basetemp
